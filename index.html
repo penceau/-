@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>重新組合我的歌｜手寫詩卡牆</title>
+  <style>
+    :root{--bg:#000;--ink:#fff;--muted:#bdbdbd;--panel:#0d0d0d;--line:#2a2a2a;}
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,"PingFang TC","Noto Sans TC",sans-serif}
+    .wrap{width:min(1100px,92%);margin:0 auto}
+    header{padding:42px 0 12px}
+    h1{margin:0 0 8px;font-size:28px;letter-spacing:.5px}
+    .sub{color:var(--muted);margin:0 0 12px;line-height:1.6}
+    .controls{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 4px;align-items:center}
+    button{padding:10px 16px;border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:10px;cursor:pointer}
+    button:hover{background:rgba(255,255,255,.06)}
+    button.ghost{border-color:#666;color:#bbb}
+    .toggle{display:flex;align-items:center;gap:8px;color:#ddd;font-size:14px;user-select:none}
+    .toggle input{accent-color:#fff}
+
+    main{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;align-items:start}
+    section h2{font-size:16px;color:var(--muted);font-weight:600;margin:6px 0 8px}
+    .card-area{min-height:220px;border:1px dashed var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--panel)}
+    .card{background:transparent;color:#fff;padding:8px;border-radius:8px;transform:rotate(var(--rot,-1.2deg));user-select:none;cursor:pointer;text-align:center;border:1px dashed #333}
+    .card img{display:block;height:84px;width:auto;margin:0 auto;transition:transform .2s ease}
+    .card:hover img{transform:scale(1.03)}
+
+    .poem-wall{position:relative;min-height:460px;border:1px solid var(--line);border-radius:12px;padding:10px;background:
+      radial-gradient(1200px 500px at 40% -10%, rgba(255,255,255,.05), transparent 60%),
+      var(--panel);
+    overflow:hidden}
+    .note{position:absolute;max-width:320px;padding:6px 8px;border-radius:8px;transform:rotate(var(--rot,0deg))}
+    .note img{display:block;height:90px;width:auto}
+
+     .card img,
+     .note img{
+      filter: invert(1) contrast(1.05) brightness(1.05);
+    }
+
+    footer{padding:24px 0 40px;color:#888}
+    .tiny{font-size:12px}
+    @media (max-width:900px){main{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <header class="wrap">
+    <h1>重新組合我的歌｜手寫詩卡牆</h1>
+    <p class="sub">抽取我的手寫詩句，貼到牆上，生成屬於現場的詩。</p>
+
+    <div class="controls">
+      <button id="drawBtn">抽一張</button>
+      <button id="resetBtn" class="ghost">重置牆面</button>
+
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="table">
+      <h2>抽卡區</h2>
+      <div id="cardArea" class="card-area"></div>
+    </section>
+
+    <section class="wall">
+      <h2>詩牆</h2>
+      <div id="poemWall" class="poem-wall" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <footer class="wrap tiny">
+    <p>© Y. P. Pence Au — 詩與聲音的互動實驗</p>
+  </footer>
+
+  <script>
+    /* ========= 把這兩行改成你的圖片來源 =========
+     * 1) BASE：你的 GitHub raw 資料夾網址（結尾要有 / ）
+     *    例如：https://raw.githubusercontent.com/<user>/<repo>/main/images/
+     * 2) FILES：你的 PNG 檔名
+     */
+    const BASE  = 'https://raw.githubusercontent.com/your-user/your-repo/main/images/';
+    const FILES = [
+      // 'line01.png','line02.png','line03.png'
+    ];
+
+    const rand = (min, max) => Math.floor(Math.random()*(max-min+1))+min;
+    const urls = () => FILES.map(name => BASE + name);
+
+    function createCard(imgURL){
+      const el = document.createElement('div');
+      el.className = 'card';
+      el.style.setProperty('--rot', `${(Math.random()*6-3).toFixed(2)}deg`);
+      const img = document.createElement('img'); img.src = imgURL; img.alt = 'poem-line';
+      el.appendChild(img);
+      el.addEventListener('click', () => placeOnWall(imgURL));
+      return el;
+    }
+
+    function drawLine(){
+      const arr = urls();
+      if(!arr.length){ alert('請先在程式最上方設定 BASE / FILES。'); return; }
+      const i = rand(0, arr.length - 1);
+      const card = createCard(arr[i]);
+      document.getElementById('cardArea').appendChild(card);
+    }
+
+    function placeOnWall(imgURL){
+      const wall = document.getElementById('poemWall');
+      const note = document.createElement('div');
+      note.className = 'note';
+      note.style.setProperty('--rot', `${(Math.random()*4-2).toFixed(2)}deg`);
+      const img = document.createElement('img'); img.src = imgURL; img.alt = 'poem-line note';
+      note.appendChild(img);
+
+      const maxLeft = Math.max(20, wall.clientWidth - 340);
+      const maxTop  = Math.max(20, wall.clientHeight - 140);
+      note.style.left = rand(10, maxLeft) + 'px';
+      note.style.top  = rand(10, maxTop) + 'px';
+
+      wall.appendChild(note);
+    }
+
+    function resetAll(){
+      document.getElementById('poemWall').innerHTML = '';
+      document.getElementById('cardArea').innerHTML = '';
+    }
+
+    document.getElementById('drawBtn').addEventListener('click', drawLine);
+    document.getElementById('resetBtn').addEventListener('click', resetAll);
+
+
+  </script>
+</body>
+</html>
