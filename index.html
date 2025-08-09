@@ -16,28 +16,17 @@
     button{padding:10px 16px;border:1px solid var(--ink);background:transparent;color:var(--ink);border-radius:10px;cursor:pointer}
     button:hover{background:rgba(255,255,255,.06)}
     button.ghost{border-color:#666;color:#bbb}
-    .toggle{display:flex;align-items:center;gap:8px;color:#ddd;font-size:14px;user-select:none}
-    .toggle input{accent-color:#fff}
-
     main{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;align-items:start}
     section h2{font-size:16px;color:var(--muted);font-weight:600;margin:6px 0 8px}
     .card-area{min-height:220px;border:1px dashed var(--line);border-radius:12px;padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:var(--panel)}
     .card{background:transparent;color:#fff;padding:8px;border-radius:8px;transform:rotate(var(--rot,-1.2deg));user-select:none;cursor:pointer;text-align:center;border:1px dashed #333}
     .card img{display:block;height:84px;width:auto;margin:0 auto;transition:transform .2s ease}
     .card:hover img{transform:scale(1.03)}
-
     .poem-wall{position:relative;min-height:460px;border:1px solid var(--line);border-radius:12px;padding:10px;background:
       radial-gradient(1200px 500px at 40% -10%, rgba(255,255,255,.05), transparent 60%),
-      var(--panel);
-    overflow:hidden}
+      var(--panel); overflow:hidden}
     .note{position:absolute;max-width:320px;padding:6px 8px;border-radius:8px;transform:rotate(var(--rot,0deg))}
     .note img{display:block;height:90px;width:auto}
-
-     .card img,
-     .note img{
-      filter: invert(1) contrast(1.05) brightness(1.05);
-    }
-
     footer{padding:24px 0 40px;color:#888}
     .tiny{font-size:12px}
     @media (max-width:900px){main{grid-template-columns:1fr}}
@@ -47,11 +36,9 @@
   <header class="wrap">
     <h1>重新組合我的歌｜手寫詩卡牆</h1>
     <p class="sub">抽取我的手寫詩句，貼到牆上，生成屬於現場的詩。</p>
-
     <div class="controls">
       <button id="drawBtn">抽一張</button>
       <button id="resetBtn" class="ghost">重置牆面</button>
-
     </div>
   </header>
 
@@ -60,7 +47,6 @@
       <h2>抽卡區</h2>
       <div id="cardArea" class="card-area"></div>
     </section>
-
     <section class="wall">
       <h2>詩牆</h2>
       <div id="poemWall" class="poem-wall" aria-live="polite"></div>
@@ -72,15 +58,30 @@
   </footer>
 
   <script>
-    /* ========= 把這兩行改成你的圖片來源 =========
-     * 1) BASE：你的 GitHub raw 資料夾網址（結尾要有 / ）
-     *    例如：https://raw.githubusercontent.com/<user>/<repo>/main/images/
-     * 2) FILES：你的 PNG 檔名
-     */
-    const BASE  = 'https://github.com/penceau/-/tree/2c4ee14cdbb45934bd4ec768fda52468e05b5bc2/drive-download-20250809T091646Z-1-001/';
+    // ✅ 你的 GitHub Raw 圖片資料夾（結尾一定要 /）
+    const BASE  = 'https://raw.githubusercontent.com/penceau/-/main/drive-download-20250809T091646Z-1-001/';
+
+    // ✅ 把這裡換成實際檔名（注意大小寫要相同）
     const FILES = [
-      // 'sketch1754730018181.png','u1.png','u2.png','u3.png','u4.png','u5.png','u6.png','u6(1).png','u7.png','u8.png','u9.png','u10.png','u11.png','u12.png','u13.png','u14.png','u15.png','u16.png','u18.png'
-  
+      'sketch1754730018181.png',
+      'u1 .png',
+      'u2.png',
+      'u3.png',
+      'u4.png',
+      'u5.png',
+      'u6.png',
+      'u6(1).png',
+      'u7.png',
+      'u8.png',
+      'u9.png',
+      'u10.png',
+      'u11.png',
+      'u12.png',
+      'u13.png',
+      'u14.png',
+      'u15.png',
+      'u16.png',
+      'u18.png'
     ];
 
     const rand = (min, max) => Math.floor(Math.random()*(max-min+1))+min;
@@ -95,15 +96,13 @@
       el.addEventListener('click', () => placeOnWall(imgURL));
       return el;
     }
-
     function drawLine(){
       const arr = urls();
-      if(!arr.length){ alert('請先在程式最上方設定 BASE / FILES。'); return; }
+      if(!arr.length){ alert('請先設定 BASE / FILES'); return; }
       const i = rand(0, arr.length - 1);
       const card = createCard(arr[i]);
       document.getElementById('cardArea').appendChild(card);
     }
-
     function placeOnWall(imgURL){
       const wall = document.getElementById('poemWall');
       const note = document.createElement('div');
@@ -111,24 +110,18 @@
       note.style.setProperty('--rot', `${(Math.random()*4-2).toFixed(2)}deg`);
       const img = document.createElement('img'); img.src = imgURL; img.alt = 'poem-line note';
       note.appendChild(img);
-
       const maxLeft = Math.max(20, wall.clientWidth - 340);
       const maxTop  = Math.max(20, wall.clientHeight - 140);
       note.style.left = rand(10, maxLeft) + 'px';
       note.style.top  = rand(10, maxTop) + 'px';
-
       wall.appendChild(note);
     }
-
     function resetAll(){
       document.getElementById('poemWall').innerHTML = '';
       document.getElementById('cardArea').innerHTML = '';
     }
-
     document.getElementById('drawBtn').addEventListener('click', drawLine);
     document.getElementById('resetBtn').addEventListener('click', resetAll);
-
-
   </script>
 </body>
 </html>
